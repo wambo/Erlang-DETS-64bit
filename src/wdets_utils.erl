@@ -189,7 +189,7 @@ ipread(Head, Pos1, MaxSize) ->
     end,
     io:format("WIERD READ at ~w, maxsize ~w ~n",[Pos1,MaxSize]),
     %case wfile:ipread_s32bu_p32bu(Head#head.fptr, Pos1, MaxSize) of
-    case wdets_wambo:read_32_64(Head#head.fptr, Pos1, MaxSize) of
+    case wdets_wambo:ipread_s32bu_p64bu(Head#head.fptr, Pos1, MaxSize) of
 	{ok, {0, 0, eof}} ->
 	    [];
 	{ok, Reply} ->
@@ -470,7 +470,7 @@ new_cache({Delay, Size}) ->
 %%% 
 
 %% Definitions for the buddy allocator.
--define(MAXBUD, 34).             % 2 GB is maximum file size
+-define(MAXBUD, 36).             % 2 GB is maximum file size
 -define(MAXFREELISTS, 50000000). % Bytes reserved for the free lists (at end).
 
 %-define(DEBUG(X, Y), io:format(X, Y)).

@@ -181,10 +181,10 @@
 %%%
 
 
--define(MAXBUD, 36).
--define(COLL_CNTRS, (32*4)).     % Counters for the buddy system.
+-define(MAXBUD, 34).
+-define(COLL_CNTRS, (30*4)).     % Counters for the buddy system.
 
--define(RESERVED, (128 - (4*4))).        % Reserved for future use.
+-define(RESERVED, 128).        % Reserved for future use.
 
 -define(MD5SZ, 16).
 
@@ -1662,7 +1662,7 @@ do_perform_save(H) ->
     %% ok = wdets_utils:write(H1, [FLW | <<FileSize:32>>]),
     %% FileHeader = file_header(H1, FreeListsPointer, ?CLOSED_PROPERLY),
     %EDIT
-    {ok,EOF} = wdets_utils:position(H,eof), % S채tt markern p책 slutet av filen(d채r freelist ska skrivas)
+    {ok,EOF} = wdets_utils:position(H,eof), % S곦tt markern p곩 slutet av filen(d곦r freelist ska skrivas)
     {FLW, FLSize} = free_lists_to_file(H), % formatera freelistan etc
     FileSize = EOF+FLSize+(4*?FSZDOUBLE),
     ok = wdets_utils:write(H, [FLW | <<FileSize:(32*?FSZDOUBLE)>>]), % Skriv listan till filen
@@ -1740,7 +1740,7 @@ free_lists_to_file(H) ->
     free_list_to_file(FL, H, 1, tuple_size(FL), [], 0).
 
 free_list_to_file(_Ftab, _H, Pos, Sz, Ws, WsSz) when Pos > Sz ->
-    {[Ws | <<?FREESZ:32, ?FREE:32, ?ENDFREE:32>>], WsSz+?FREESZ};
+    {[Ws | o<<?FREESZ:32, ?FREE:32, ?ENDFREE:32>>], WsSz+?FREESZ};
 %    {[Ws | <<(4+?OHDSZ):32, ?FREE:32, ?ENDFREE:32>>], WsSz+4+?OHDSZ};
 free_list_to_file(Ftab, H, Pos, Sz, Ws, WsSz) ->
     Max = (?MAXFREEOBJ - ?FREESZ) div 4,
@@ -2108,11 +2108,11 @@ slot_objects(Head, Slot) ->
 eval_work_list(Head, [{Key,[{_Seq,{lookup,Pid}}]}]) ->
     SlotPos = slot_position(db_hash(Key, Head)),
     MaxSize = maxobjsize(Head),
-    io:format("Head ~w ~n SlotPos ~w ~n MaxSize ~w ~n",[Head,SlotPos,MaxSize]),
+    io:format(a"Head ~w ~n SlotPos ~w ~n MaxSize ~w ~n",[Head,SlotPos,MaxSize]),
     Objs = case wdets_utils:ipread(Head, SlotPos, MaxSize) of 
 	       {ok, {_BucketSz, Pointer, Bin}} ->
 		   io:format("!! ~w ~n",[Pointer]),
-                   case catch per_key(Head, Bin) of %% per_key 채r tokig...
+                   case catch per_key(Head, Bin) of %% per_key 곦r tokig...
                        {'EXIT', Error} ->
 			   erlang:display(Error),
                            Bad = wdets_utils:bad_object(eval_work_list,
@@ -2551,13 +2551,13 @@ slot_position(S) ->
     PartPos = ?SEGARRADDR(?SEG2SEGARRPART(SegNo)), % SegNo div ?SEGPARTSZ
     %         (56+28*4+16)+128       +(4*(SegNo div 512))
     %         (A         )+B         +C
-    % A = storlek p책 filens header?
+    % A = storlek p곩 filens header?
     % B = Reserved bytes
     % C = Segment numrets plats.. 0, 4, 8, 12 osv..
     % A+B+C = Plats positionen, 312, 316, 320
 
     Part = get_arrpart(PartPos),
-    % H채mtar arrpart fr책n partpos.. ligger i processens minne, get(312) ger tex 4156
+    % H곦mtar arrpart fr곩n partpos.. ligger i processens minne, get(312) ger tex 4156
 
     Pos = ?SEGPARTADDR(Part, SegNo),
     % P + 4*?REM2(SegN, 512)
